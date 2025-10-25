@@ -5,84 +5,23 @@ import streamlit.components.v1 as components
 st.set_page_config(
     page_title="AI CEO Voice Assistant",
     page_icon="🎙️",
-    layout="wide",
-    initial_sidebar_state="expanded"
+    layout="wide"
 )
 
-# Sidebar widgets
-st.sidebar.title("⚙️ Settings")
-st.sidebar.markdown("---")
-
-# Text input widget
-user_name = st.sidebar.text_input("Your Name", placeholder="Enter your name")
-
-# Select box widget
-conversation_mode = st.sidebar.selectbox(
-    "Conversation Mode",
-    ["Voice", "Chat", "Both"]
-)
-
-# Slider widget
-voice_speed = st.sidebar.slider("Voice Speed", 0.5, 2.0, 1.0, 0.1)
-
-# Radio buttons
-language = st.sidebar.radio(
-    "Preferred Language",
-    ["English", "Spanish", "French", "German"]
-)
-
-# Checkbox widget
-show_transcript = st.sidebar.checkbox("Show Transcript", value=True)
-
-# Color picker
-accent_color = st.sidebar.color_picker("Accent Color", "#ff001b")
-
-st.sidebar.markdown("---")
-
-# Button widget
-if st.sidebar.button("Reset Settings"):
-    st.rerun()
-
-# File uploader widget
-uploaded_file = st.sidebar.file_uploader("Upload Document", type=["pdf", "txt", "docx"])
-
-st.sidebar.markdown("---")
-st.sidebar.info("💡 Use the voice assistant below to interact with AI CEO")
-
-# Main content area
-st.title("🎙️ AI CEO Voice Assistant")
-st.markdown("### Welcome to the Interactive Voice Experience")
-
-col1, col2, col3 = st.columns(3)
-
-with col1:
-    st.metric("Active Users", "1,234", "+12%")
-with col2:
-    st.metric("Conversations", "5,678", "+23%")
-with col3:
-    st.metric("Satisfaction", "98%", "+2%")
-
-st.markdown("---")
-
-# Display user settings
-if user_name:
-    st.success(f"👋 Hello, {user_name}!")
-
-st.write(f"**Current Mode:** {conversation_mode}")
-st.write(f"**Voice Speed:** {voice_speed}x")
-st.write(f"**Language:** {language}")
-
-# Vapi Widget HTML
-vapi_html = f"""
+# HTML with Vapi Widget and microphone access
+vapi_html = """
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        body {{
+        body {
             margin: 0;
-            padding: 20px;
-            min-height: 600px;
-        }}
+            padding: 0;
+            min-height: 100vh;
+            background-color: #000000;
+        }
     </style>
 </head>
 <body>
@@ -92,7 +31,7 @@ vapi_html = f"""
         mode="voice"
         theme="dark"
         base-bg-color="#000000"
-        accent-color="{accent_color}"
+        accent-color="#ff001b"
         cta-button-color="#000000"
         cta-button-text-color="#ffffff"
         border-radius="large"
@@ -103,31 +42,32 @@ vapi_html = f"""
         end-button-text="End Call"
         chat-first-message="Hey, How can I help you today?"
         chat-placeholder="Type your message..."
-        voice-show-transcript="{'true' if show_transcript else 'false'}"
+        voice-show-transcript="true"
         consent-required="true"
         consent-title="Terms and conditions"
-        consent-content="By clicking "Agree," and each time I interact with this AI agent, I consent to the recording, storage, and sharing of my communications with third-party service providers, and as otherwise described in our Terms of Service."
+        consent-content="By clicking 'Agree,' and each time I interact with this AI agent, I consent to the recording, storage, and sharing of my communications with third-party service providers, and as otherwise described in our Terms of Service."
         consent-storage-key="vapi_widget_consent"
     ></vapi-widget>
     
     <script src="https://unpkg.com/@vapi-ai/client-sdk-react/dist/embed/widget.umd.js" async type="text/javascript"></script>
+    
+    <script>
+        // Request microphone access when page loads
+        window.addEventListener('load', async function() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                console.log('Microphone access granted');
+                // Keep the stream active
+                window.audioStream = stream;
+            } catch (error) {
+                console.error('Microphone access denied:', error);
+                alert('Please allow microphone access to use the voice assistant.');
+            }
+        });
+    </script>
 </body>
 </html>
 """
 
-st.markdown("---")
-st.subheader("🎯 Voice Assistant Interface")
-
-# Embed the Vapi widget
-components.html(vapi_html, height=650, scrolling=True)
-
-# Footer
-st.markdown("---")
-st.markdown(
-    """
-    <div style='text-align: center; color: #666;'>
-        <p>Powered by Vapi AI | Built with Streamlit</p>
-    </div>
-    """,
-    unsafe_allow_html=True
-)
+# Render the widget
+components.html(vapi_html, height=800, scrolling=False)
